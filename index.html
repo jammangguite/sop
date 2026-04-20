@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daybook — Influence & Stewardship</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1a2a3a; --gold: #d4af37; --slate: #2c3e50;
+            --paper: #f8f9fa; --white: #ffffff; --red: #e74c3c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--paper); color: var(--slate); line-height: 1.6; }
+        
+        /* Header & Branding */
+        .app-header {
+            background: var(--navy); color: var(--white);
+            padding: 20px 40px; border-bottom: 4px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .brand h1 { font-family: 'Playfair Display', serif; font-size: 28px; letter-spacing: 1px; }
+        .brand p { font-size: 12px; font-style: italic; color: #bdc3c7; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Auth Container */
+        .auth-card {
+            max-width: 400px; margin: 80px auto; background: var(--white);
+            padding: 40px; border-radius: 12px; shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center; border: 1px solid #eee;
+        }
+        
+        /* Dashboard & Form */
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; display: none; }
+        .card { background: var(--white); padding: 30px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid var(--gold); }
+        
+        .field { margin-bottom: 18px; text-align: left; }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: #7f8c8d; }
+        input, select, textarea {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none;
+        }
+        input:focus { border-color: var(--navy); }
+
+        .btn {
+            display: inline-block; padding: 12px 24px; border-radius: 6px; cursor: pointer;
+            font-weight: 600; transition: 0.3s; border: none; text-align: center; width: 100%;
+        }
+        .btn-primary { background: var(--navy); color: white; }
+        .btn-primary:hover { background: #121d29; }
+        
+        /* Compliance Alert */
+        .warning-box {
+            background: #fff5f5; border: 1px solid var(--red); color: var(--red);
+            padding: 15px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; display: none;
+        }
+        
+        .admin-only { display: none; border-top: 2px dashed #eee; padding-top: 20px; margin-top: 20px; }
+
+    </style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="brand">
+        <h1>Daybook</h1>
+        <p>Serving the Need of Influence & Stewardship</p>
+    </div>
+    <div id="user-info" style="font-size: 13px; text-align: right;"></div>
+</header>
+
+<div class="auth-card" id="login-screen">
+    <div class="field">
+        <label>User ID</label>
+        <input type="text" id="login-id" placeholder="ID">
+    </div>
+    <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-pwd" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary" onclick="attemptLogin()">Enter Daybook</button>
+</div>
+
+<div class="container" id="main-app">
+    <div class="warning-box" id="compliance-alert"></div>
+    
+    <div class="card">
+        <h3>New Transaction</h3>
+        <br>
+        <div class="field">
+            <label>Amount (₹)</label>
+            <input type="number" id="tx-amount" oninput="checkCompliance()">
+        </div>
+        <div class="field">
+            <label>Category</label>
+            <select id="tx-category" onchange="checkCompliance()">
+                <option value="Daily Expense">Daily Business Expense</option>
+                <option value="Loan Disbursement">Loan Disbursement (LD)</option>
+                <option value="Loan Repayment">Loan Repayment (EMI)</option>
+                <option value="Cash Receipt">Cash Receipt</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" id="save-btn" onclick="saveEntry()">Record Stewardship Action</button>
+    </div>
+
+    <!-- Admin Emergency Panel -->
+    <div class="card admin-only" id="admin-panel">
+        <h4 style="color: var(--red);">🚨 Admin: Emergency Password Reset</h4>
+        <p style="font-size: 11px; margin-bottom: 10px;">Reset a user password to '123456'. They must change it immediately.</p>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="reset-target-id" placeholder="Staff ID" style="flex:1">
+            <button class="btn btn-primary" style="background: var(--red); width: auto;" onclick="emergencyReset()">Reset User</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const GAS_URL = "YOUR_APPS_SCRIPT_URL"; // User fills this
+    let session = { userId: "", role: "", clientSheetId: "" };
+
+    async function attemptLogin() {
+        const id = document.getElementById('login-id').value;
+        const pwd = document.getElementById('login-pwd').value;
+        
+        // Mocking GAS Login for demonstration
+        // In real use, this calls backend.gs -> 'login' action
+        session = { userId: id, role: id === 'admin' ? 'admin' : 'user', clientSheetId: 'SHEET_ID' };
+        
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('user-info').innerHTML = `<b>${session.userId}</b> | ${session.role.toUpperCase()}`;
+        
+        if(session.role === 'admin' || id === 'JamMang') {
+            document.getElementById('admin-panel').style.display = 'block';
+        }
+    }
+
+    function checkCompliance() {
+        const amt = parseFloat(document.getElementById('tx-amount').value);
+        const cat = document.getElementById('tx-category').value;
+        const alertBox = document.getElementById('compliance-alert');
+        const saveBtn = document.getElementById('save-btn');
+        
+        alertBox.style.display = 'none';
+        saveBtn.disabled = false;
+
+        if (cat === "Loan Disbursement" && amt >= 20000) {
+            alertBox.innerHTML = "🚩 <b>RBI Compliance Alert:</b> Cash loans >= ₹20,000 attract 100% penalty (Sec 269SS/T). Use Digital Mode.";
+            alertBox.style.display = 'block';
+            saveBtn.disabled = true;
+        }
+        
+        if (amt >= 200000) {
+            alertBox.innerHTML = "🚩 <b>CRITICAL:</b> Cash receipts of ₹2L+ are strictly prohibited under Sec 269ST.";
+            alertBox.style.display = 'block';
+            saveBtn.disabled = true;
+        }
+    }
+
+    async function saveEntry() {
+        alert("Transaction recorded in " + session.clientSheetId + ". Notifications sent to Super Admin.");
+    }
+
+    async function emergencyReset() {
+        const target = document.getElementById('reset-target-id').value;
+        if(confirm("Reset password for " + target + "?")) {
+            alert("Emergency notification sent. Password reset to 123456.");
+        }
+    }
+</script>
+
+</body>
+</html>

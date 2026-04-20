@@ -1,2 +1,1 @@
-# sop
-Tunzua Custome Software
+# Daybook Deployment Guide\n1. Upload index.html to GitHub Pages.\n2. Create Apps Script with backend.gs.\n3. Link the two using the Web App URL.
