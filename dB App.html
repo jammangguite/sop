@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dB — App</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand:#4f46e5; --brand-dark:#3730a3; --brand-dim:#6366f1;
+  --brand-light:#eef2ff; --brand-mid:#c7d2fe;
+  --accent:#10b981;
+  --fg:#0f172a; --fg2:#334155; --fg3:#64748b; --fg4:#94a3b8;
+  --border:#e2e8f0; --border2:#f1f5f9;
+  --surface:#ffffff; --bg:#f8fafc; --bg2:#f1f5f9;
+  --green:#16a34a; --green-l:#dcfce7; --green-b:#86efac;
+  --red:#dc2626; --red-l:#fee2e2; --red-b:#fca5a5;
+  --amber:#d97706; --amber-l:#fef3c7; --amber-b:#fcd34d;
+  --blue:#2563eb; --blue-l:#dbeafe; --blue-b:#93c5fd;
+  --sh:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --sh2:0 4px 24px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── APP SHELL ── */
+.shell{display:flex;flex:1;min-height:0}
+
+/* ── SIDEBAR ── */
+.sidebar{width:232px;background:var(--surface);border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow-y:auto}
+.sb-header{padding:20px 18px 16px;border-bottom:1px solid var(--border2)}
+.sb-logo{font-size:20px;font-weight:800;color:var(--brand);letter-spacing:-.04em;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sb-logo-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:-4px}
+.org-switcher{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;background:var(--bg)}
+.org-switcher:hover{border-color:var(--brand-mid);background:var(--brand-light)}
+.org-avatar{width:28px;height:28px;border-radius:7px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.org-name{font-size:13px;font-weight:600;color:var(--fg);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.org-chevron{color:var(--fg3)}
+.org-chevron svg{width:14px;height:14px}
+.sb-nav{padding:12px 10px;flex:1}
+.sb-section{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--fg4);padding:10px 8px 5px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:all .12s;color:var(--fg3);font-size:13px;font-weight:500;border:none;background:transparent;width:100%;text-align:left;margin-bottom:2px}
+.sb-item svg{width:16px;height:16px;flex-shrink:0}
+.sb-item:hover{background:var(--bg2);color:var(--fg)}
+.sb-item.active{background:var(--brand-light);color:var(--brand);font-weight:600}
+.sb-item .badge{margin-left:auto;background:var(--red-l);color:var(--red);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sb-bottom{padding:12px 10px;border-top:1px solid var(--border2)}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:background .12s}
+.sb-user:hover{background:var(--bg2)}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:13px;font-weight:600;color:var(--fg);flex:1}
+.user-role{font-size:11px;color:var(--fg3)}
+
+/* ── TOP BAR ── */
+.topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:700;color:var(--fg);flex:1}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;color:var(--fg3)}
+.icon-btn:hover{background:var(--bg2);color:var(--fg)}
+.icon-btn svg{width:16px;height:16px}
+
+/* ── PAGE ── */
+.page{display:none;flex:1;overflow-y:auto}
+.page.active{display:block}
+.page-inner{max-width:960px;margin:0 auto;padding:28px 28px 80px}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--sh);overflow:hidden;margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border2)}
+.card-title{font-size:14px;font-weight:700;color:var(--fg);display:flex;align-items:center;gap:8px}
+.card-title svg{width:16px;height:16px;color:var(--brand)}
+.card-body{padding:20px}
+.card-footer{padding:12px 20px;background:var(--bg);border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:flex-end;gap:8px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap;text-decoration:none}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.25)}
+.btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg2);color:var(--fg2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border);color:var(--fg)}
+.btn-danger{background:var(--red-l);color:var(--red);border:1px solid var(--red-b)}
+.btn-danger:hover{background:var(--red-b)}
+.btn-success{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:7px}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--sh)}
+.stat-card.featured{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dim) 100%);border-color:transparent}
+.stat-label{font-size:12px;font-weight:500;color:var(--fg3);margin-bottom:6px}
+.stat-card.featured .stat-label{color:rgba(255,255,255,.7)}
+.stat-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:var(--fg)}
+.stat-card.featured .stat-val{color:#fff}
+.stat-change{display:flex;align-items:center;gap:4px;margin-top:6px;font-size:11px}
+.stat-change.up{color:var(--green)}
+.stat-change.neutral{color:var(--fg3)}
+
+/* ── FORMS ── */
+.form-grid{display:grid;gap:16px}
+.form-grid-2{grid-template-columns:1fr 1fr}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:12px;font-weight:600;color:var(--fg2);letter-spacing:.01em}
+.field-label .req{color:var(--red);margin-left:2px}
+input[type=text],input[type=email],input[type=date],input[type=number],input[type=password],select,textarea{
+  width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;
+  font-family:inherit;font-size:13px;color:var(--fg);background:var(--surface);
+  outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+input[readonly]{background:var(--bg);color:var(--fg3)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;cursor:pointer}
+textarea{resize:vertical;min-height:72px;line-height:1.6}
+.field-hint{font-size:11px;color:var(--fg3);font-style:italic}
+.type-toggle{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--border);border-radius:9px;overflow:hidden}
+.type-btn{padding:10px;border:none;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;color:var(--fg3);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
+.type-btn:first-child{border-right:1.5px solid var(--border)}
+.type-btn.active-in{background:var(--green-l);color:var(--green)}
+.type-btn.active-out{background:var(--red-l);color:var(--red)}
+.amount-wrap{position:relative}
+.amount-pfx{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:var(--brand);pointer-events:none}
+.amount-wrap input{padding-left:28px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500}
+
+/* ── TABLES ── */
+.table-wrap{overflow-x:auto}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px}
+table.data-table th{padding:10px 14px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);background:var(--bg);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+table.data-table td{padding:11px 14px;border-bottom:1px solid var(--border2);vertical-align:middle}
+table.data-table tr:last-child td{border-bottom:none}
+table.data-table tr:hover td{background:#fafbff}
+.tx-in{color:var(--green);font-family:'IBM Plex Mono',monospace;font-weight:500}
+.tx-out{color:var(--red);font-family:'IBM Plex Mono',monospace;font-weight:500}
+.tx-bal{color:var(--fg);font-family:'IBM Plex Mono',monospace;font-weight:600}
+.member-id{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--brand)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-red{background:var(--red-l);color:var(--red)}
+.badge-amber{background:var(--amber-l);color:var(--amber)}
+.badge-blue{background:var(--blue-l);color:var(--blue)}
+.badge-brand{background:var(--brand-light);color:var(--brand)}
+.badge-gray{background:var(--bg2);color:var(--fg3)}
+.cat-pill{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:500}
+
+/* ── MEMBER GRID ── */
+.member-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.member-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;box-shadow:var(--sh)}
+.member-card:hover{border-color:var(--brand-mid);box-shadow:var(--sh2);transform:translateY(-2px)}
+.mc-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.mc-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dim) 100%);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.mc-id{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;color:var(--brand)}
+.mc-name{font-size:13px;font-weight:700;color:var(--fg);line-height:1.3}
+.mc-role{font-size:11px;color:var(--fg3)}
+.mc-stats{display:flex;gap:12px;padding-top:10px;border-top:1px solid var(--border2)}
+.mc-stat{text-align:center;flex:1}
+.mc-stat-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--fg)}
+.mc-stat-lbl{font-size:10px;color:var(--fg3);margin-top:1px}
+
+/* ── SIG BOXES ── */
+.sig-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sig-box{border:1.5px dashed var(--border);border-radius:10px;padding:12px;text-align:center;background:var(--bg);transition:all .2s}
+.sig-box.signed{border-style:solid;border-color:var(--green-b);background:var(--green-l)}
+.sig-box.pending{border-style:solid;border-color:var(--amber-b);background:var(--amber-l)}
+.sig-role-lbl{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin-bottom:6px}
+.sig-name{font-size:12px;font-weight:600;color:var(--fg)}
+.sig-date{font-size:10px;color:var(--fg3);margin-top:3px}
+.sig-btn{margin-top:8px;width:100%;padding:6px;border:1.5px solid var(--amber-b);border-radius:7px;background:white;color:var(--amber);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;transition:all .18s}
+.sig-btn:hover{background:var(--amber-b);color:white}
+
+/* ── PLANS ── */
+.plan-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:28px;position:relative;transition:all .2s}
+.plan-card.current{border-color:var(--brand);box-shadow:0 0 0 4px rgba(79,70,229,.08)}
+.plan-card.current::before{content:'Current plan';position:absolute;top:-12px;left:20px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:10px}
+
+/* ── ONBOARDING ── */
+.onboard-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:40px}
+.onboard-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:520px;box-shadow:var(--sh2)}
+.onboard-logo{font-size:24px;font-weight:800;color:var(--brand);letter-spacing:-.04em;margin-bottom:28px}
+.steps{display:flex;gap:0;margin-bottom:32px}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--fg3);flex-shrink:0;background:var(--surface)}
+.step-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.step-dot.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.step-line{flex:1;height:2px;background:var(--border);margin-top:13px}
+.step-line.done{background:var(--green)}
+
+/* ── SUPER ADMIN ── */
+.org-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border2)}
+.org-row:last-child{border-bottom:none}
+.org-orb{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dim) 100%);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;right:22px;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.15);z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;max-width:380px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green);color:#fff}
+.toast.warning{background:var(--amber);color:#fff}
+.toast.error{background:var(--red);color:#fff}
+.toast.info{background:var(--brand);color:#fff}
+
+/* ── MEMBER PORTAL OVERRIDES ── */
+.portal-header{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dim) 100%);color:#fff;padding:32px 28px 28px;margin:-28px -28px 24px;border-radius:14px 14px 0 0}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border2);margin:16px 0}
+.empty-state{text-align:center;padding:48px 20px;color:var(--fg3)}
+.empty-state svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
+.appr-banner{border-radius:10px;padding:12px 16px;font-size:13px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:10px;border:1px solid}
+.appr-banner.pending{background:var(--amber-l);color:var(--amber);border-color:var(--amber-b)}
+.appr-banner.approved{background:var(--green-l);color:var(--green);border-color:var(--green-b)}
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .member-grid{grid-template-columns:1fr}
+  .sig-grid{grid-template-columns:1fr 1fr}
+  .form-grid-2,.form-grid-3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ ONBOARDING (shown first) ══════════════ -->
+<div id="onboarding" class="onboard-wrap">
+  <div class="onboard-card">
+    <div class="onboard-logo">dB<span style="color:var(--accent);font-size:8px;vertical-align:super;margin-left:2px">●</span></div>
+
+    <div class="steps">
+      <div class="step-dot active" id="s1">1</div>
+      <div class="step-line" id="l1"></div>
+      <div class="step-dot" id="s2">2</div>
+      <div class="step-line" id="l2"></div>
+      <div class="step-dot" id="s3">3</div>
+    </div>
+
+    <!-- Step 1: Account -->
+    <div id="step1">
+      <div style="margin-bottom:24px">
+        <div style="font-size:20px;font-weight:800;color:var(--fg);margin-bottom:6px">Create your account</div>
+        <div style="font-size:14px;color:var(--fg3)">Start free — no credit card required</div>
+      </div>
+      <div class="form-grid" style="gap:14px">
+        <div class="field">
+          <label class="field-label">Full name <span class="req">*</span></label>
+          <input type="text" placeholder="Nangmuanlal Samte" value="Nangmuanlal Samte">
+        </div>
+        <div class="field">
+          <label class="field-label">Phone number <span class="req">*</span></label>
+          <input type="text" placeholder="+91 98765 43210" value="+91 89749 80091" style="font-family:'IBM Plex Mono',monospace;font-size:13px">
+        </div>
+        <div class="field">
+          <label class="field-label">Email</label>
+          <input type="email" placeholder="treasurer@society.in" value="naamoonsamte@gmail.com">
+        </div>
+        <div class="field">
+          <label class="field-label">Password <span class="req">*</span></label>
+          <input type="password" value="••••••••••">
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:20px;padding:13px" onclick="nextStep(2)">Continue →</button>
+      <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--fg3)">Already have an account? <a href="#" style="color:var(--brand);font-weight:600" onclick="enterApp()">Log in</a></div>
+    </div>
+
+    <!-- Step 2: Society -->
+    <div id="step2" style="display:none">
+      <div style="margin-bottom:24px">
+        <div style="font-size:20px;font-weight:800;color:var(--fg);margin-bottom:6px">Set up your society</div>
+        <div style="font-size:14px;color:var(--fg3)">This creates your organisation's workspace</div>
+      </div>
+      <div class="form-grid" style="gap:14px">
+        <div class="field">
+          <label class="field-label">Society name <span class="req">*</span></label>
+          <input type="text" value="Lamka Exchange Society">
+        </div>
+        <div class="form-grid form-grid-2" style="gap:14px">
+          <div class="field">
+            <label class="field-label">Type</label>
+            <select><option>Savings Society</option><option>Chit Fund</option><option>Credit Union</option></select>
+          </div>
+          <div class="field">
+            <label class="field-label">FY Start</label>
+            <select><option>April</option><option>January</option><option>March</option></select>
+          </div>
+        </div>
+        <div class="form-grid form-grid-2" style="gap:14px">
+          <div class="field">
+            <label class="field-label">Monthly contribution (₹)</label>
+            <div class="amount-wrap"><span class="amount-pfx">₹</span><input type="number" value="2500"></div>
+          </div>
+          <div class="field">
+            <label class="field-label">Your role</label>
+            <select><option>Treasurer</option><option>Secretary</option><option>President</option><option>Member</option></select>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="nextStep(1)">← Back</button>
+        <button class="btn btn-primary" style="flex:2;justify-content:center;padding:13px" onclick="nextStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Invite -->
+    <div id="step3" style="display:none">
+      <div style="margin-bottom:24px">
+        <div style="font-size:20px;font-weight:800;color:var(--fg);margin-bottom:6px">Invite your committee</div>
+        <div style="font-size:14px;color:var(--fg3)">Add phone numbers — they'll get a WhatsApp invite</div>
+      </div>
+      <div class="form-grid" style="gap:10px">
+        <div class="form-grid form-grid-2" style="gap:10px;align-items:end">
+          <div class="field"><label class="field-label">Secretary</label><input type="text" placeholder="+91 87318 31178" value="+91 87318 31178" style="font-family:'IBM Plex Mono',monospace;font-size:12px"></div>
+          <div class="field"><label class="field-label">President</label><input type="text" placeholder="+91 83750 98415" value="+91 83750 98415" style="font-family:'IBM Plex Mono',monospace;font-size:12px"></div>
+        </div>
+        <div class="field"><label class="field-label">Additional members (comma-separated phone numbers)</label>
+          <textarea style="font-family:'IBM Plex Mono',monospace;font-size:12px;min-height:60px" placeholder="+91 88608 72981, +91 96129 10946, +91 98333 55223…"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="nextStep(2)">← Back</button>
+        <button class="btn btn-primary" style="flex:2;justify-content:center;padding:13px" onclick="enterApp()">Launch society →</button>
+      </div>
+      <button style="width:100%;background:none;border:none;font-size:13px;color:var(--fg3);cursor:pointer;margin-top:12px;font-family:inherit" onclick="enterApp()">Skip for now, I'll invite later</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP SHELL ══════════════ -->
+<div id="appShell" style="display:none;flex:1;flex-direction:column;min-height:100vh">
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">dB <div class="sb-logo-dot"></div></div>
+      <div class="org-switcher" onclick="showToast('Switch org — Enterprise feature','info')">
+        <div class="org-avatar">LE</div>
+        <span class="org-name">Lamka Exchange</span>
+        <div class="org-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-section">Entry</div>
+      <button class="sb-item" onclick="showPage('daybook',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Daybook
+      </button>
+      <div class="sb-section">Reports</div>
+      <button class="sb-item active" onclick="showPage('dashboard',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="sb-item" onclick="showPage('members',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Members
+      </button>
+      <button class="sb-item" onclick="showPage('reports',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Reports
+      </button>
+      <div class="sb-section">Workspace</div>
+      <button class="sb-item" onclick="showPage('portal',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M2 20c0-4 4-7 10-7s10 3 10 7"/></svg>
+        Member Portal
+      </button>
+      <button class="sb-item" onclick="showPage('settings',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        Settings
+      </button>
+      <button class="sb-item" onclick="showPage('billing',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Billing
+        <span class="badge">Pro</span>
+      </button>
+      <button class="sb-item" onclick="showPage('superadmin',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 3 2-7L2 9h7z"/></svg>
+        Super Admin
+      </button>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="user-avatar">NS</div>
+        <div>
+          <div class="user-name">Nangmuanlal</div>
+          <div class="user-role">Treasurer</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="icon-btn" onclick="showToast('No new notifications','info')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+        <div class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showPage('daybook',null)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New entry
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-inner">
+        <div style="margin-bottom:22px">
+          <div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.02em">Good morning, Nangmuanlal 👋</div>
+          <div style="font-size:14px;color:var(--fg3);margin-top:3px">Lamka Exchange Society · FY 2026-27 · as at 25th April 2026</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card featured">
+            <div class="stat-label">Total Corpus</div>
+            <div class="stat-val">₹1,95,500</div>
+            <div class="stat-change up" style="color:rgba(255,255,255,.7)">↑ ₹86,500 this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Members</div>
+            <div class="stat-val">18</div>
+            <div class="stat-change up">↑ 4 joined this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Net Shares</div>
+            <div class="stat-val">171.0</div>
+            <div class="stat-change neutral">Founding: 140 · Regular: 31</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">MF Invested</div>
+            <div class="stat-val">₹1,75,000</div>
+            <div class="stat-change neutral">3 tranches · Apr 2026</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <!-- Recent transactions -->
+          <div class="card" style="grid-column:1/-1">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+                Recent Transactions
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="showPage('reports',null)">View all →</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Date</th><th>Member</th><th>Category</th><th>Mode</th><th style="text-align:right">Cash IN</th><th style="text-align:right">Cash OUT</th><th style="text-align:right">Balance</th></tr></thead>
+                <tbody>
+                  <tr><td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--fg3)">20-Apr-26</td><td>Society</td><td><span class="cat-pill" style="background:var(--red-l);color:var(--red)">MF Investment</span></td><td style="color:var(--fg3);font-size:12px">Transfer</td><td>—</td><td class="tx-out">₹25,000</td><td class="tx-bal">₹20,500</td></tr>
+                  <tr><td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--fg3)">18-Apr-26</td><td><span class="member-id">LES18</span> Tombing</td><td><span class="cat-pill" style="background:var(--brand-light);color:var(--brand)">Entrance Fee</span></td><td style="color:var(--fg3);font-size:12px">UPI</td><td class="tx-in">₹1,000</td><td>—</td><td class="tx-bal">₹1,93,000</td></tr>
+                  <tr><td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--fg3)">16-Apr-26</td><td><span class="member-id">LES17</span> Thang Mary</td><td><span class="cat-pill" style="background:var(--green-l);color:var(--green)">Monthly Contribution</span></td><td style="color:var(--fg3);font-size:12px">UPI</td><td class="tx-in">₹2,500</td><td>—</td><td class="tx-bal">₹1,79,000</td></tr>
+                  <tr><td style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--fg3)">15-Apr-26</td><td>Society</td><td><span class="cat-pill" style="background:var(--red-l);color:var(--red)">MF Investment</span></td><td style="color:var(--fg3);font-size:12px">Transfer</td><td>—</td><td class="tx-out">₹90,000</td><td class="tx-bal">₹1,05,500</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pending approvals -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Pending Approvals
+              </div>
+              <span class="badge badge-amber">2 pending</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="padding:12px;border:1px solid var(--amber-b);border-radius:10px;background:var(--amber-l)">
+                  <div style="font-size:13px;font-weight:600;color:var(--fg)">Loan Disbursement — LES07</div>
+                  <div style="font-size:12px;color:var(--fg3);margin-top:2px">₹50,000 · Jammang Guite · 22-Apr-26</div>
+                  <div style="display:flex;gap:6px;margin-top:10px">
+                    <button class="btn btn-success btn-xs" onclick="showToast('✅ Approved — Jammang Guite loan','success')">Approve</button>
+                    <button class="btn btn-danger btn-xs" onclick="showToast('❌ Rejected','error')">Reject</button>
+                  </div>
+                </div>
+                <div style="padding:12px;border:1px solid var(--amber-b);border-radius:10px;background:var(--amber-l)">
+                  <div style="font-size:13px;font-weight:600;color:var(--fg)">MF Investment Top-up</div>
+                  <div style="font-size:12px;color:var(--fg3);margin-top:2px">₹30,000 · Society · 24-Apr-26</div>
+                  <div style="display:flex;gap:6px;margin-top:10px">
+                    <button class="btn btn-success btn-xs" onclick="showToast('✅ Investment approved','success')">Approve</button>
+                    <button class="btn btn-danger btn-xs">Reject</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contribution health -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Contribution Health
+              </div>
+              <span class="badge badge-green">13 of 18 current</span>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--fg)">Fully paid (2+ months)</span>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:80px;height:6px;background:var(--border2);border-radius:3px;overflow:hidden"><div style="width:72%;height:100%;background:var(--green);border-radius:3px"></div></div>
+                    <span style="font-size:12px;font-weight:600;color:var(--green)">13</span>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--fg)">1 month paid</span>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:80px;height:6px;background:var(--border2);border-radius:3px;overflow:hidden"><div style="width:22%;height:100%;background:var(--amber);border-radius:3px"></div></div>
+                    <span style="font-size:12px;font-weight:600;color:var(--amber)">4</span>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--fg)">No payment yet</span>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="width:80px;height:6px;background:var(--border2);border-radius:3px;overflow:hidden"><div style="width:6%;height:100%;background:var(--red);border-radius:3px"></div></div>
+                    <span style="font-size:12px;font-weight:600;color:var(--red)">1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DAYBOOK ══ -->
+    <div id="page-daybook" class="page">
+      <div class="page-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+          <div>
+            <div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.02em">New Entry</div>
+            <div style="font-size:14px;color:var(--fg3);margin-top:2px">Recording for 25th April 2026</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input type="date" value="2026-04-25" style="width:160px;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+            <input type="text" value="" placeholder="Receipt no. (auto)" readonly style="width:200px;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg3)">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Transaction Details
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid form-grid-2" style="margin-bottom:16px">
+              <div class="field">
+                <label class="field-label">Category <span class="req">*</span></label>
+                <select onchange="handleCat(this)">
+                  <option value="">— Select category —</option>
+                  <optgroup label="Receipts (Cash IN)">
+                    <option value="ef">Entrance Fees</option>
+                    <option value="mc" selected>Monthly Contributions</option>
+                    <option value="emi">Loan Repayment (EMI)</option>
+                  </optgroup>
+                  <optgroup label="Payments (Cash OUT)">
+                    <option value="loan">Loan Disbursement ⚠ Approval required</option>
+                    <option value="mf">Mutual Fund Investment ⚠ Approval required</option>
+                    <option value="exp">Operating Expense</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label">Member</label>
+                <select>
+                  <option>— Select member —</option>
+                  <option selected>LES01 — Min Khooptong</option>
+                  <option>LES02 — Nangmuanlal Samte</option>
+                  <option>LES07 — Jammang Guite</option>
+                  <option>LES18 — Tombing Ginsonmung</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid form-grid-2" style="margin-bottom:16px">
+              <div class="field">
+                <label class="field-label">Transaction type <span class="req">*</span></label>
+                <div class="type-toggle">
+                  <button class="type-btn active-in" id="btnIn" onclick="setType('in')">↓ Cash IN</button>
+                  <button class="type-btn" id="btnOut" onclick="setType('out')">↑ Cash OUT</button>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label">Amount (₹) <span class="req">*</span></label>
+                <div class="amount-wrap">
+                  <span class="amount-pfx">₹</span>
+                  <input type="number" value="2500" style="border-color:var(--green-b)">
+                </div>
+              </div>
+            </div>
+            <div class="form-grid form-grid-2" style="margin-bottom:16px">
+              <div class="field">
+                <label class="field-label">Payment mode</label>
+                <select onchange="toggleRef(this.value)">
+                  <option value="cash">💵  Cash</option>
+                  <option value="upi" selected>📱  UPI</option>
+                  <option value="neft">🏦  NEFT</option>
+                  <option value="cheque">📄  Cheque</option>
+                </select>
+              </div>
+              <div class="field" id="refField">
+                <label class="field-label">UPI Transaction ID</label>
+                <input type="text" placeholder="646175470373" style="font-family:'IBM Plex Mono',monospace;font-size:12px">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Narration</label>
+              <textarea placeholder="Brief description for the master ledger…">Monthly contribution for May 2026 — Min Khooptong</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signatories -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Signatories
+            </div>
+            <span class="badge badge-green">No approval required</span>
+          </div>
+          <div class="card-body">
+            <div class="sig-grid">
+              <div class="sig-box signed">
+                <div class="sig-role-lbl">Treasurer ✅</div>
+                <div class="sig-name">Nangmuanlal Samte</div>
+                <div class="sig-date">25-Apr-26</div>
+              </div>
+              <div class="sig-box">
+                <div class="sig-role-lbl">Secretary</div>
+                <input type="text" style="text-align:center;font-size:12px;border:none;border-bottom:1.5px solid var(--border);border-radius:0;padding:4px;background:transparent;width:100%;outline:none;margin:6px 0" value="Jammang Guite">
+                <div class="sig-date">25-Apr-26</div>
+              </div>
+              <div class="sig-box">
+                <div class="sig-role-lbl">President</div>
+                <input type="text" style="text-align:center;font-size:12px;border:none;border-bottom:1.5px solid var(--border);border-radius:0;padding:4px;background:transparent;width:100%;outline:none;margin:6px 0" value="Min Khooptong">
+                <div class="sig-date">25-Apr-26</div>
+              </div>
+              <div class="sig-box">
+                <div class="sig-role-lbl">Controller</div>
+                <input type="text" style="text-align:center;font-size:12px;border:none;border-bottom:1.5px solid var(--border);border-radius:0;padding:4px;background:transparent;width:100%;outline:none;margin:6px 0" placeholder="Name">
+                <div class="sig-date">—</div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="field">
+              <label class="field-label">Remarks</label>
+              <textarea rows="2" placeholder="Optional remarks…"></textarea>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-secondary" onclick="showToast('📝 Draft saved','warning')">Save draft</button>
+            <button class="btn btn-danger btn-sm">Delete</button>
+            <button class="btn btn-primary" onclick="doSaveEntry()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/></svg>
+              Save to Sheets
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MEMBERS ══ -->
+    <div id="page-members" class="page">
+      <div class="page-inner">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
+          <div style="flex:1">
+            <div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.02em">Members</div>
+            <div style="font-size:14px;color:var(--fg3);margin-top:2px">18 active members · FY 2026-27</div>
+          </div>
+          <input type="text" placeholder="Search members…" style="width:220px" oninput="filterMembers(this.value)">
+          <button class="btn btn-primary btn-sm" onclick="showToast('Invite sent via WhatsApp','success')">+ Invite member</button>
+        </div>
+        <div class="member-grid" id="memberGrid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REPORTS ══ -->
+    <div id="page-reports" class="page">
+      <div class="page-inner">
+        <div style="margin-bottom:22px">
+          <div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.02em">Financial Reports</div>
+          <div style="font-size:14px;color:var(--fg3);margin-top:2px">FY 2026-27 · Auto-generated from daybook</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" id="rtab-rp" onclick="showReport('rp',this)">Receipts & Payments</button>
+          <button class="btn btn-secondary btn-sm" id="rtab-pnl" onclick="showReport('pnl',this)">P&L Statement</button>
+          <button class="btn btn-secondary btn-sm" id="rtab-bs" onclick="showReport('bs',this)">Balance Sheet</button>
+          <div style="flex:1"></div>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('PDF exported','success')">⬇ Export PDF</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Link copied','info')">🔗 Share</button>
+        </div>
+
+        <!-- R&P -->
+        <div id="rpt-rp" class="card">
+          <div class="card-header">
+            <div class="card-title">Receipts & Payments Account — FY 2026-27</div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border2)">
+              <div style="border-right:1px solid var(--border2)">
+                <div style="padding:10px 16px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">RECEIPTS</div>
+                <table class="data-table" style="font-size:12px">
+                  <tbody>
+                    <tr><td style="font-weight:600;color:var(--fg)">Entrance Fees</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace">1,12,000</td></tr>
+                    <tr><td style="padding-left:24px;color:var(--fg2)">Founding (14 members)</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--fg3)">1,08,000</td></tr>
+                    <tr><td style="padding-left:24px;color:var(--fg2)">Regular (4 members)</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--fg3)">4,000</td></tr>
+                    <tr><td style="font-weight:600;color:var(--fg)">Monthly Contributions</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace">83,500</td></tr>
+                    <tr><td style="font-weight:600;color:var(--fg3);font-style:italic">Loan Repayments</td><td style="text-align:right;color:var(--fg3);font-style:italic">Nil</td></tr>
+                    <tr style="border-top:2px solid var(--fg)"><td style="font-weight:700;padding:10px 14px">TOTAL RECEIPTS</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;padding:10px 14px">1,95,500</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <div style="padding:10px 16px;background:var(--brand);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase">PAYMENTS</div>
+                <table class="data-table" style="font-size:12px">
+                  <tbody>
+                    <tr><td style="font-weight:600;color:var(--fg)">MF Investments</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace">1,75,000</td></tr>
+                    <tr><td style="padding-left:24px;color:var(--fg2)">15-Apr tranche 1</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--fg3)">90,000</td></tr>
+                    <tr><td style="padding-left:24px;color:var(--fg2)">15-Apr tranche 2</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--fg3)">60,000</td></tr>
+                    <tr><td style="padding-left:24px;color:var(--fg2)">20-Apr tranche 3</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--fg3)">25,000</td></tr>
+                    <tr><td style="font-weight:600;color:var(--fg)">Closing Balance (Cash)</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace">20,500</td></tr>
+                    <tr style="border-top:2px solid var(--fg)"><td style="font-weight:700;padding:10px 14px">TOTAL PAYMENTS</td><td style="text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;padding:10px 14px">1,95,500</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div style="padding:12px 16px;background:var(--green-l);border-top:1px solid var(--green-b);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--green)">
+              ✅ R&P Account Balanced — Total Receipts = Total Payments = ₹1,95,500
+            </div>
+          </div>
+        </div>
+        <div id="rpt-pnl" class="card" style="display:none">
+          <div class="card-header"><div class="card-title">Income & Expenditure — FY 2026-27</div></div>
+          <div class="card-body"><div style="padding:20px;text-align:center;color:var(--fg3);font-size:14px">No surplus for FY 2026-27 — loan operations yet to commence. P&L is nil.</div></div>
+        </div>
+        <div id="rpt-bs" class="card" style="display:none">
+          <div class="card-header"><div class="card-title">Balance Sheet — 31st March 2027</div></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+              <div><div style="font-size:12px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Equity & Liabilities</div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px"><span>Share Capital</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600">₹1,12,000</span></div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px"><span>Contribution Fund</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600">₹83,500</span></div>
+                <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;font-weight:700"><span>TOTAL</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--brand)">₹1,95,500</span></div>
+              </div>
+              <div><div style="font-size:12px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Assets</div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px"><span>MF Investments</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600">₹1,75,000</span></div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px"><span>Cash in Hand</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:600">₹20,500</span></div>
+                <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;font-weight:700"><span>TOTAL</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--brand)">₹1,95,500</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MEMBER PORTAL ══ -->
+    <div id="page-portal" class="page">
+      <div class="page-inner">
+        <div class="card">
+          <div class="portal-header">
+            <div style="display:flex;align-items:center;gap:16px">
+              <div style="width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff">MK</div>
+              <div>
+                <div style="font-size:22px;font-weight:800;color:#fff">Min Khooptong</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:rgba(255,255,255,.75)">LES01 · President · Founding Member</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px">
+              <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:16px;text-align:center">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:#fff">12</div>
+                <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">Net Shares</div>
+              </div>
+              <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:16px;text-align:center">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:#fff">₹5,000</div>
+                <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">Contributions</div>
+              </div>
+              <div style="background:rgba(255,255,255,.15);border-radius:12px;padding:16px;text-align:center">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:#fff">₹5,000</div>
+                <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px">Entrance Fee</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body" style="border-radius:0">
+            <div style="font-size:14px;font-weight:700;color:var(--fg);margin-bottom:14px">Contribution History</div>
+            <table class="data-table">
+              <thead><tr><th>Month</th><th>Date Paid</th><th style="text-align:right">Amount</th><th style="text-align:right">Shares</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:500">Mar-26</td><td style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg3)">16-Mar-26</td><td class="tx-in" style="text-align:right">₹2,500</td><td style="text-align:right"><span class="badge badge-brand">+1</span></td><td><span class="badge badge-green">✓ Paid</span></td></tr>
+                <tr><td style="font-weight:500">Apr-26</td><td style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg3)">05-Apr-26</td><td class="tx-in" style="text-align:right">₹2,500</td><td style="text-align:right"><span class="badge badge-brand">+1</span></td><td><span class="badge badge-green">✓ Paid</span></td></tr>
+                <tr><td style="font-weight:500">May-26</td><td style="color:var(--fg3);font-size:12px">—</td><td style="text-align:right;color:var(--fg3)">₹2,500</td><td style="text-align:right">—</td><td><span class="badge badge-amber">⏳ Due</span></td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top:16px;padding:14px;background:var(--brand-light);border-radius:10px;border:1px solid var(--brand-mid)">
+              <div style="font-size:13px;font-weight:600;color:var(--brand);margin-bottom:4px">May 2026 contribution due</div>
+              <div style="font-size:13px;color:var(--fg3)">₹2,500 due by 15th May 2026. Pay to Treasurer via UPI: <span style="font-family:'IBM Plex Mono',monospace;color:var(--brand)">naamoon@upi</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div id="page-settings" class="page">
+      <div class="page-inner">
+        <div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.02em;margin-bottom:22px">Settings</div>
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:24px">
+          <div>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <button class="sb-item active" style="font-size:13px">Organisation</button>
+              <button class="sb-item" style="font-size:13px">Members & Roles</button>
+              <button class="sb-item" style="font-size:13px">Contribution Rules</button>
+              <button class="sb-item" style="font-size:13px">Notifications</button>
+              <button class="sb-item" style="font-size:13px">Integrations</button>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Organisation Details</div></div>
+              <div class="card-body">
+                <div class="form-grid" style="gap:14px">
+                  <div class="field"><label class="field-label">Society name</label><input type="text" value="Lamka Exchange Society"></div>
+                  <div class="form-grid form-grid-2" style="gap:14px">
+                    <div class="field"><label class="field-label">Type</label><select><option>Savings Society</option></select></div>
+                    <div class="field"><label class="field-label">Registration no.</label><input type="text" value="MNP/SOC/2026/0142" style="font-family:'IBM Plex Mono',monospace;font-size:12px"></div>
+                  </div>
+                  <div class="form-grid form-grid-2" style="gap:14px">
+                    <div class="field"><label class="field-label">FY start month</label><select><option>April</option></select></div>
+                    <div class="field"><label class="field-label">Monthly contribution</label><div class="amount-wrap"><span class="amount-pfx">₹</span><input type="number" value="2500"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer"><button class="btn btn-primary btn-sm" onclick="showToast('Settings saved','success')">Save changes</button></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Signatories & Roles</div>
+                <span class="badge badge-amber">3 of 4 assigned</span>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border);border-radius:9px">
+                    <div style="width:32px;height:32px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">MK</div>
+                    <div style="flex:1"><div style="font-size:13px;font-weight:600">Min Khooptong</div><div style="font-size:11px;color:var(--fg3)">LES01 · President</div></div>
+                    <span class="badge badge-brand">President</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border);border-radius:9px">
+                    <div style="width:32px;height:32px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">NS</div>
+                    <div style="flex:1"><div style="font-size:13px;font-weight:600">Nangmuanlal Samte</div><div style="font-size:11px;color:var(--fg3)">LES02 · Treasurer</div></div>
+                    <span class="badge badge-green">Treasurer</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border);border-radius:9px">
+                    <div style="width:32px;height:32px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">JG</div>
+                    <div style="flex:1"><div style="font-size:13px;font-weight:600">Jammang Guite</div><div style="font-size:11px;color:var(--fg3)">LES07 · Secretary</div></div>
+                    <span class="badge badge-blue">Secretary</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:10px;border:1.5px dashed var(--border);border-radius:9px;background:var(--bg)">
+                    <div style="width:32px;height:32px;border-radius:8px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--fg4)">+</div>
+                    <div style="flex:1;font-size:13px;color:var(--fg3)">Assign Controller…</div>
+                    <button class="btn btn-secondary btn-xs">Assign</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BILLING ══ -->
+    <div id="page-billing" class="page">
+      <div class="page-inner">
+        <div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.02em;margin-bottom:22px">Billing & Subscription</div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
+          <div class="plan-card">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin-bottom:8px">Free</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:500;margin-bottom:4px">₹0</div>
+            <div style="font-size:13px;color:var(--fg3);margin-bottom:20px">Up to 20 members</div>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--fg2)">
+              <li>✓ Daybook & ledger</li>
+              <li>✓ Financial reports</li>
+              <li style="color:var(--fg4)">✗ Approval workflows</li>
+              <li style="color:var(--fg4)">✗ Member portal</li>
+            </ul>
+          </div>
+          <div class="plan-card current">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin-bottom:8px">Pro</div>
+            <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:4px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:500">₹999</div>
+              <div style="font-size:13px;color:var(--fg3)">/mo</div>
+            </div>
+            <div style="font-size:13px;color:var(--fg3);margin-bottom:20px">Unlimited members</div>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--fg2);margin-bottom:20px">
+              <li>✓ Everything in Free</li>
+              <li>✓ Approval workflows</li>
+              <li>✓ Member self-service portal</li>
+              <li>✓ Unlimited WhatsApp</li>
+            </ul>
+            <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" onclick="showToast('Manage subscription on Stripe','info')">Manage subscription</button>
+          </div>
+          <div class="plan-card">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin-bottom:8px">Enterprise</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:500;margin-bottom:4px">Custom</div>
+            <div style="font-size:13px;color:var(--fg3);margin-bottom:20px">Multiple societies</div>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--fg2);margin-bottom:20px">
+              <li>✓ Super-admin dashboard</li>
+              <li>✓ Custom branding</li>
+              <li>✓ SLA & dedicated support</li>
+              <li>✓ Tally/Sheets export</li>
+            </ul>
+            <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center" onclick="showToast('Sales team notified','success')">Contact sales</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Billing History</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th>Invoice</th></tr></thead>
+              <tbody>
+                <tr><td style="font-family:'IBM Plex Mono',monospace;font-size:12px">01-Apr-26</td><td>dB Pro — April 2026</td><td style="font-family:'IBM Plex Mono',monospace;font-weight:600">₹999</td><td><span class="badge badge-green">Paid</span></td><td><a href="#" style="color:var(--brand);font-size:12px" onclick="showToast('Invoice downloaded','info');return false">Download PDF</a></td></tr>
+                <tr><td style="font-family:'IBM Plex Mono',monospace;font-size:12px">01-Mar-26</td><td>dB Pro — March 2026</td><td style="font-family:'IBM Plex Mono',monospace;font-weight:600">₹999</td><td><span class="badge badge-green">Paid</span></td><td><a href="#" style="color:var(--brand);font-size:12px" onclick="showToast('Invoice downloaded','info');return false">Download PDF</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SUPER ADMIN ══ -->
+    <div id="page-superadmin" class="page">
+      <div class="page-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+          <div>
+            <div style="font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.02em">Super Admin</div>
+            <div style="font-size:14px;color:var(--fg3);margin-top:2px">All organisations on dB · 2,418 total</div>
+          </div>
+          <span class="badge badge-brand" style="font-size:12px;padding:5px 12px">dB Admin</span>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom:20px">
+          <div class="stat-card featured"><div class="stat-label">Total Orgs</div><div class="stat-val">2,418</div><div class="stat-change up" style="color:rgba(255,255,255,.7)">↑ 48 this week</div></div>
+          <div class="stat-card"><div class="stat-label">Total Members</div><div class="stat-val">41,204</div><div class="stat-change up">↑ 312 this week</div></div>
+          <div class="stat-card"><div class="stat-label">MRR</div><div class="stat-val">₹9.4L</div><div class="stat-change up">↑ 12% MoM</div></div>
+          <div class="stat-card"><div class="stat-label">Pro Orgs</div><div class="stat-val">941</div><div class="stat-change neutral">39% conversion</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Organisations</div>
+            <input type="text" placeholder="Search orgs…" style="width:200px;padding:7px 11px;font-size:12px">
+          </div>
+          <div class="card-body" style="padding:0">
+            <div style="padding:0 20px">
+              <div class="org-row">
+                <div class="org-orb">LE</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">Lamka Exchange Society</div><div style="font-size:11px;color:var(--fg3)">18 members · Manipur · Joined Mar 2026</div></div>
+                <span class="badge badge-brand">Pro</span>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg2)">₹1,95,500</div>
+              </div>
+              <div class="org-row">
+                <div class="org-orb" style="background:linear-gradient(135deg,#0d9488,#14b8a6)">IM</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">Imphal Mutual Aid Society</div><div style="font-size:11px;color:var(--fg3)">34 members · Imphal · Joined Jan 2026</div></div>
+                <span class="badge badge-brand">Pro</span>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg2)">₹4,82,000</div>
+              </div>
+              <div class="org-row">
+                <div class="org-orb" style="background:linear-gradient(135deg,#d97706,#f59e0b)">CS</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">Churchil Savings Cooperative</div><div style="font-size:11px;color:var(--fg3)">12 members · Churachandpur · Joined Apr 2026</div></div>
+                <span class="badge badge-gray">Free</span>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg2)">₹48,000</div>
+              </div>
+              <div class="org-row">
+                <div class="org-orb" style="background:linear-gradient(135deg,#dc2626,#ef4444)">NK</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">New Kuki Chit Fund</div><div style="font-size:11px;color:var(--fg3)">22 members · Senapati · Joined Feb 2026</div></div>
+                <span class="badge badge-brand">Pro</span>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg2)">₹2,14,500</div>
+              </div>
+              <div class="org-row" style="border-bottom:none">
+                <div class="org-orb" style="background:linear-gradient(135deg,#7c3aed,#8b5cf6)">ZS</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">Zomi Solidarity Fund</div><div style="font-size:11px;color:var(--fg3)">28 members · Lamka · Joined Mar 2026</div></div>
+                <span class="badge badge-gray">Free</span>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--fg2)">₹1,12,000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main content -->
+</div><!-- /shell -->
+</div><!-- /appShell -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MEMBERS = [
+  {id:'LES01',name:'Min Khooptong',role:'President',type:'Founding',shares:12,paid:5000},
+  {id:'LES02',name:'Nangmuanlal Samte',role:'Treasurer',type:'Founding',shares:12,paid:5000},
+  {id:'LES07',name:'Jammang Guite',role:'Secretary',type:'Founding',shares:12,paid:5000},
+  {id:'LES08',name:'Niang Lian Cing',role:'Member',type:'Founding',shares:12,paid:5000},
+  {id:'LES09',name:'Joseph M. Ngaihte',role:'Member',type:'Founding',shares:12,paid:5000},
+  {id:'LES10',name:'T. Kamzamang',role:'Member',type:'Founding',shares:12,paid:5000},
+  {id:'LES13',name:'Moses L. Guite',role:'Asst. Secretary',type:'Founding',shares:12,paid:5000},
+  {id:'LES15',name:'Vunghbiakmuan',role:'Member',type:'Regular',shares:1,paid:2500},
+  {id:'LES16',name:'DK Siamlian Valte',role:'Member',type:'Regular',shares:1,paid:2500},
+  {id:'LES17',name:'Thang Mary Ngaihte',role:'Member',type:'Regular',shares:1,paid:2500},
+  {id:'LES18',name:'Tombing Ginsonmung',role:'Member',type:'Regular',shares:1,paid:2500},
+];
+
+function nextStep(n) {
+  for (let i=1;i<=3;i++) {
+    document.getElementById('step'+i).style.display = i===n?'block':'none';
+    const dot = document.getElementById('s'+i);
+    if (i < n) { dot.className='step-dot done'; dot.textContent='✓'; }
+    else if (i===n) { dot.className='step-dot active'; dot.textContent=i; }
+    else { dot.className='step-dot'; dot.textContent=i; }
+    if (i < 3) {
+      document.getElementById('l'+i).className = 'step-line'+(i<n?' done':'');
+    }
+  }
+}
+
+function enterApp() {
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+  renderMemberGrid(MEMBERS);
+  showToast('🎉 Welcome to dB — Lamka Exchange Society', 'success');
+}
+
+function showPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if (btn) btn.classList.add('active');
+  const titles = {dashboard:'Dashboard',daybook:'New Entry',members:'Members',reports:'Financial Reports',portal:'Member Portal',settings:'Settings',billing:'Billing',superadmin:'Super Admin'};
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+}
+
+function setType(t) {
+  document.getElementById('btnIn').className = 'type-btn'+(t==='in'?' active-in':'');
+  document.getElementById('btnOut').className = 'type-btn'+(t==='out'?' active-out':'');
+}
+
+function handleCat(sel) {
+  const needsApproval = ['loan','mf'].includes(sel.value);
+  setType(['ef','mc','emi'].includes(sel.value)?'in':'out');
+}
+
+function toggleRef(m) {
+  const f = document.getElementById('refField');
+  f.style.display = m==='cash' ? 'none' : 'flex';
+  f.style.flexDirection = 'column';
+  f.style.gap = '5px';
+}
+
+function doSaveEntry() {
+  showToast('✅ Saved — LES2026/25Apr/036MC', 'success');
+  document.querySelector('#page-daybook input[readonly]').value = 'LES2026/25Apr/036MC';
+}
+
+function renderMemberGrid(members) {
+  const grid = document.getElementById('memberGrid');
+  if (!grid) return;
+  grid.innerHTML = members.map(m => {
+    const initials = m.name.split(' ').slice(0,2).map(w=>w[0]).join('');
+    const excellent = m.paid >= 5000;
+    return `<div class="member-card" onclick="showToast('Opening ledger for ${m.name}','info')">
+      <div class="mc-header">
+        <div class="mc-avatar">${initials}</div>
+        <div>
+          <div class="mc-id">${m.id}</div>
+          <div class="mc-name">${m.name}</div>
+          <div class="mc-role">${m.role}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <span class="badge ${m.type==='Founding'?'badge-brand':'badge-green'}">${m.type}</span>
+        <span class="badge ${excellent?'badge-green':'badge-amber'}">${excellent?'✓ Excellent':'⏳ Partial'}</span>
+      </div>
+      <div class="mc-stats">
+        <div class="mc-stat"><div class="mc-stat-val">${m.shares}</div><div class="mc-stat-lbl">Shares</div></div>
+        <div class="mc-stat"><div class="mc-stat-val">₹${m.paid.toLocaleString('en-IN')}</div><div class="mc-stat-lbl">Contributed</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterMembers(q) {
+  const filtered = q ? MEMBERS.filter(m=>m.name.toLowerCase().includes(q.toLowerCase())||m.id.toLowerCase().includes(q.toLowerCase())) : MEMBERS;
+  renderMemberGrid(filtered);
+}
+
+function showReport(r, btn) {
+  ['rp','pnl','bs'].forEach(id=>{
+    const el = document.getElementById('rpt-'+id);
+    if (el) el.style.display = id===r?'block':'none';
+  });
+  document.querySelectorAll('[id^="rtab-"]').forEach(b=>{
+    b.className = b.id === 'rtab-'+r ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm';
+  });
+}
+
+let toastTimer;
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.className='toast', 3800);
+}
+
+// Init
+renderMemberGrid(MEMBERS);
+</script>
+</body>
+</html>

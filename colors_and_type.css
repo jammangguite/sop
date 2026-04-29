@@ -1,0 +1,272 @@
+/* ═══════════════════════════════════════════════════════════════
+   LES DESIGN SYSTEM — Colors & Typography Tokens
+   Lamka Exchange Society · Daybook App
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+
+  /* ── PRIMITIVE COLOR PALETTE ─────────────────────────────── */
+
+  /* Navy (primary brand) */
+  --color-navy-900: #0e1a2e;
+  --color-navy-800: #16213e;   /* --navy / --ink */
+  --color-navy-700: #1e2d52;
+  --color-navy-600: #3a4a6b;   /* --ink2 */
+  --color-navy-400: #7c8db0;   /* --ink3 */
+  --color-navy-200: #d1d9e8;   /* --rule */
+  --color-navy-100: #eaeff8;   /* --rule2 */
+  --color-navy-050: #f7f8fc;   /* --paper */
+
+  /* Gold (accent) */
+  --color-gold-700: #7a4a0a;   /* --amber */
+  --color-gold-500: #c9922a;   /* --gold */
+  --color-gold-200: #f5e6cc;   /* --gold-l */
+  --color-gold-100: #fef3d8;   /* --amber-l */
+
+  /* Green (receipts / positive / approved) */
+  --color-green-800: #1a5c38;  /* --green */
+  --color-green-200: #d4eddf;  /* --green-l */
+  --color-green-100: #e8f5e9;
+
+  /* Red (payments / errors / delete) */
+  --color-red-800:  #8b1a1a;   /* --red */
+  --color-red-200:  #fde8e8;   /* --red-l */
+  --color-red-100:  #fff5f5;
+
+  /* Blue (links / receipts / shares) */
+  --color-blue-800: #1a3a8b;   /* --blue */
+  --color-blue-200: #e0e8fb;   /* --blue-l */
+  --color-blue-100: #e8f0fe;
+
+  /* Neutrals */
+  --color-white:    #ffffff;
+  --color-black:    #000000;
+
+  /* ── SEMANTIC ALIASES ─────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-app:         var(--color-navy-050);   /* page background */
+  --bg-surface:     var(--color-white);       /* card, input */
+  --bg-sidebar:     var(--color-navy-800);
+  --bg-header:      var(--color-navy-800);    /* card headers */
+  --bg-muted:       var(--color-navy-100);    /* table alt rows, stat bg */
+
+  /* Foreground / text */
+  --fg-primary:     var(--color-navy-800);
+  --fg-secondary:   var(--color-navy-600);
+  --fg-muted:       var(--color-navy-400);
+  --fg-on-dark:     var(--color-white);
+  --fg-on-dark-dim: rgba(255,255,255,0.65);
+  --fg-gold:        var(--color-gold-500);
+  --fg-green:       var(--color-green-800);
+  --fg-red:         var(--color-red-800);
+  --fg-blue:        var(--color-blue-800);
+  --fg-amber:       var(--color-gold-700);
+
+  /* Borders */
+  --border-base:    var(--color-navy-200);
+  --border-subtle:  var(--color-navy-100);
+  --border-gold:    var(--color-gold-500);
+  --border-green:   #a5d6b0;
+  --border-red:     #f0a0a0;
+  --border-amber:   #e8c97a;
+  --border-blue:    #b0c4f5;
+
+  /* Status semantic colors */
+  --status-approved-fg:  var(--color-green-800);
+  --status-approved-bg:  var(--color-green-200);
+  --status-pending-fg:   var(--color-gold-700);
+  --status-pending-bg:   var(--color-gold-100);
+  --status-error-fg:     var(--color-red-800);
+  --status-error-bg:     var(--color-red-200);
+  --status-info-fg:      var(--color-blue-800);
+  --status-info-bg:      var(--color-blue-200);
+
+  /* Transaction colors */
+  --tx-in:          var(--color-green-800);
+  --tx-out:         var(--color-red-800);
+  --tx-balance:     var(--color-navy-800);
+
+  /* ── TYPOGRAPHY ───────────────────────────────────────────── */
+
+  /* Font families */
+  --font-display:   'EB Garamond', Georgia, 'Times New Roman', serif;
+  --font-body:      'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:      'IBM Plex Mono', 'Menlo', 'Courier New', monospace;
+
+  /* Font sizes */
+  --text-2xl:       22px;   /* page titles */
+  --text-xl:        20px;   /* member name in ledger */
+  --text-lg:        18px;   /* topbar title */
+  --text-md:        16px;   /* modal title, report heading */
+  --text-base:      14px;   /* card title (Garamond), nav items */
+  --text-sm:        13px;   /* body, inputs, buttons */
+  --text-xs:        12px;   /* secondary text, table cells, dates */
+  --text-xxs:       11px;   /* small labels, stat labels */
+  --text-label:     10px;   /* UPPERCASE field labels */
+  --text-micro:     9px;    /* sidebar section labels, role badges */
+
+  /* Font weights */
+  --weight-light:   300;
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold: 600;
+  --weight-bold:    700;
+
+  /* Line heights */
+  --leading-tight:  1.3;
+  --leading-base:   1.5;
+  --leading-relaxed: 1.6;
+
+  /* Letter spacing */
+  --tracking-wide:  0.06em;   /* category tags */
+  --tracking-wider: 0.08em;   /* field labels */
+  --tracking-widest: 0.12em;  /* section headers */
+
+  /* ── SPACING ──────────────────────────────────────────────── */
+
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   10px;
+  --space-4:   12px;
+  --space-5:   14px;
+  --space-6:   16px;
+  --space-7:   18px;
+  --space-8:   20px;
+  --space-9:   24px;
+  --space-10:  32px;
+  --space-11:  40px;
+  --space-12:  60px;
+
+  /* ── BORDER RADII ─────────────────────────────────────────── */
+
+  --radius-sm:    6px;    /* small buttons, toast */
+  --radius-input: 7px;    /* form inputs */
+  --radius-md:    8px;    /* badges, sig boxes, inner elements */
+  --radius-stat:  10px;   /* stat cards, member cards */
+  --radius-card:  12px;   /* main cards */
+  --radius-modal: 14px;   /* modals */
+  --radius-pill:  20px;   /* chips, pills */
+  --radius-full:  9999px; /* dots */
+
+  /* ── SHADOWS ──────────────────────────────────────────────── */
+
+  --shadow-card:   0 2px 8px rgba(22,33,62,.07);      /* default card lift */
+  --shadow-raised: 0 4px 20px rgba(22,33,62,.12);     /* hover / elevated */
+  --shadow-btn:    0 2px 8px rgba(22,33,62,.22);       /* primary button */
+  --shadow-modal:  0 20px 60px rgba(22,33,62,.25);    /* modal */
+  --shadow-toast:  0 8px 32px rgba(0,0,0,.2);         /* toast */
+  --shadow-focus:  0 0 0 3px rgba(22,33,62,.07);      /* input focus ring */
+
+  /* ── TRANSITIONS ──────────────────────────────────────────── */
+
+  --transition-fast:   all 0.15s ease;
+  --transition-base:   all 0.18s ease;
+  --transition-spring: all 0.3s cubic-bezier(.34,1.56,.64,1);
+
+  /* ── LAYOUT ───────────────────────────────────────────────── */
+
+  --sidebar-width:    220px;
+  --content-max:      900px;
+  --topbar-height:    52px;
+  --toolbar-height:   48px;
+}
+
+/* ── SEMANTIC ELEMENT STYLES ──────────────────────────────────── */
+
+/* Headings — EB Garamond */
+.h1, h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+  line-height: var(--leading-tight);
+}
+.h2, h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+  line-height: var(--leading-tight);
+}
+.h3, h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+}
+.h4, h4 {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+}
+.h5, h5 {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+}
+
+/* Body — DM Sans */
+p, .body {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--fg-secondary);
+  line-height: var(--leading-relaxed);
+}
+.body-sm {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--fg-muted);
+  line-height: var(--leading-base);
+}
+
+/* Label — uppercase tracked */
+.label {
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.label-micro {
+  font-family: var(--font-body);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* Mono — IBM Plex Mono */
+code, .mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--fg-primary);
+}
+.mono-lg {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-primary);
+}
+.mono-amount {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+}
+.amount-in  { color: var(--tx-in); }
+.amount-out { color: var(--tx-out); }
+
+/* ── ANIMATIONS ───────────────────────────────────────────────── */
+
+@keyframes les-zoomIn   { from { opacity:0; transform:scale(.92) } to { opacity:1; transform:scale(1) } }
+@keyframes les-fadeUp   { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+@keyframes les-spin     { to { transform:rotate(360deg) } }
+@keyframes les-pulse-g  { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes les-pgold    { 0%,100%{box-shadow:0 0 0 0 rgba(201,146,42,.3)} 50%{box-shadow:0 0 0 5px rgba(201,146,42,0)} }
